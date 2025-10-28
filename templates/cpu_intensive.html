@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CPU Intensive Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background: #e67e22;
+            color: white;
+            text-align: center;
+        }
+        .warning {
+            background: rgba(255,0,0,0.2);
+            border: 2px solid red;
+            padding: 20px;
+            margin: 20px;
+            border-radius: 10px;
+        }
+        button {
+            padding: 15px 30px;
+            font-size: 18px;
+            background: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            margin: 10px;
+        }
+        button:hover { background: #c0392b; }
+        .back-btn { background: #3498db; }
+        .back-btn:hover { background: #2980b9; }
+        .status {
+            margin: 20px;
+            font-family: monospace;
+            background: rgba(0,0,0,0.3);
+            padding: 15px;
+            border-radius: 10px;
+        }
+        .worker-status {
+            display: inline-block;
+            margin: 5px;
+            padding: 10px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔥 CPU Overload Test</h1>
+    <div class="warning">
+        <h2>⚠️ HIGH RISK ⚠️</h2>
+        <p>This will max out your CPU cores with intensive calculations!</p>
+        <p>Device may overheat and become extremely slow!</p>
+    </div>
+    
+    <div class="status">
+        <p>Active Workers: <span id="workerCount">0</span></p>
+        <p>Calculations/sec: <span id="calcRate">0</span></p>
+        <p>Prime Numbers Found: <span id="primeCount">0</span></p>
+        <div id="workerStatus"></div>
+    </div>
+    
+    <button onclick="startCPUStress()">🔥 MAX OUT CPU 🔥</button>
+    <button onclick="stopCPUStress()">🛑 STOP</button>
+    <br>
+    <button class="back-btn" onclick="window.history.back()">← Go Back</button>
+    
+    <script>
+        let workers = [];
+        let isRunning = false;
+        let calculations = 0;
+        let primes = 0;
+        let statusInterval;
+        
+        function startCPUStress() {
+            if (confirm("This will use 100% CPU! Device may overheat. Continue?")) {
+                isRunning = true;
+                
+                // Create multiple workers to stress all CPU cores
+                const numCores = navigator.hardwareConcurrency || 4;
+                
+                for (let i = 0; i < numCores * 2; i++) {
+                    startWorker(i);
+                }
+                
+                // Also run intensive calculations on main thread
+                mainThreadStress();
+                
+                // Update status display
+                statusInterval = setInterval(updateStatus, 1000);
+            }
+        }
+        
+        function startWorker(id) {
+            // Create worker using blob URL since we can't use separate files
+            const workerCode = `
+                let calculations = 0;
+                let primes = 0;
+                
+                function isPrime(n) {
+                    if (n < 2) return false;
+                    for (let i = 2; i <= Math.sqrt(n); i++) {
+                        if (n % i === 0) return false;
+                    }
+                    return true;
+                }
+                
+                function intensiveCalculation() {
+                    // Prime number calculation
+                    for (let i = 0; i < 10000; i++) {
+                        let num = Math.floor(Math.random() * 1000000);
+                        if (isPrime(num)) {
+                            primes++;
+                        }
+                        calculations++;
+                    }
+                    
+                    // Matrix multiplication
+                    let matrix = [];
+                    for (let i = 0; i < 100; i++) {
+                        matrix[i] = [];
+                        for (let j = 0; j < 100; j++) {
+                            matrix[i][j] = Math.random();
+                        }
+                    }
+                    
+                    // Multiply matrix by itself
+                    let result = [];
+                    for (let i = 0; i < 100; i++) {
+                        result[i] = [];
+                        for (let j = 0; j < 100; j++) {
+                            result[i][j] = 0;
+                            for (let k = 0; k < 100; k++) {
+                                result[i][j] += matrix[i][k] * matrix[k][j];
+                            }
+                        }
+                    }
+                    
+                    postMessage({calculations, primes});
+                    setTimeout(intensiveCalculation, 1);
+                }
+                
+                intensiveCalculation();
+            `;
+            
+            const blob = new Blob([workerCode], {type: 'application/javascript'});
+            const worker = new Worker(URL.createObjectURL(blob));
+            
+            worker.onmessage = function(e) {
+                calculations += e.data.calculations;
+                primes += e.data.primes;
+            };
+            
+            workers.push({worker, id, calculations: 0});
+            updateWorkerDisplay();
+        }
+        
+        function mainThreadStress() {
+            if (!isRunning) return;
+            
+            // Fibonacci calculations
+            function fibonacci(n) {
+                if (n < 2) return n;
+                return fibonacci(n - 1) + fibonacci(n - 2);
+            }
+            
+            // Calculate some Fibonacci numbers
+            for (let i = 0; i < 10; i++) {
+                fibonacci(30 + Math.floor(Math.random() * 5));
+            }
+            
+            // Recursive factorial
+            function factorial(n) {
+                return n <= 1 ? 1 : n * factorial(n - 1);
+            }
+            
+            for (let i = 0; i < 100; i++) {
+                factorial(100 + Math.floor(Math.random() * 50));
+            }
+            
+            setTimeout(mainThreadStress, 1);
+        }
+        
+        function updateStatus() {
+            document.getElementById('workerCount').textContent = workers.length;
+            document.getElementById('calcRate').textContent = calculations;
+            document.getElementById('primeCount').textContent = primes;
+            calculations = 0; // Reset for next second
+        }
+        
+        function updateWorkerDisplay() {
+            const display = document.getElementById('workerStatus');
+            display.innerHTML = workers.map(w => 
+                `<div class="worker-status">Worker ${w.id}: Active</div>`
+            ).join('');
+        }
+        
+        function stopCPUStress() {
+            isRunning = false;
+            workers.forEach(w => w.worker.terminate());
+            workers = [];
+            if (statusInterval) clearInterval(statusInterval);
+            updateWorkerDisplay();
+            console.log("CPU stress test stopped");
+        }
+        
+        window.addEventListener('beforeunload', stopCPUStress);
+    </script>
+</body>
+</html>

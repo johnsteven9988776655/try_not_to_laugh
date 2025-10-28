@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phone Stress Suite</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            background: #000;
+            color: #ff0000;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .container {
+            text-align: center;
+            padding: 20px;
+        }
+        h1 {
+            font-size: 3em;
+            text-shadow: 0 0 20px #ff0000;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 0.8; }
+            50% { opacity: 1; }
+        }
+        .test-grid {
+            display: grid;
+            gap: 20px;
+            margin-top: 40px;
+        }
+        .test-card {
+            background: rgba(255,0,0,0.1);
+            border: 2px solid #ff0000;
+            padding: 30px;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .test-card:hover {
+            background: rgba(255,0,0,0.3);
+            box-shadow: 0 0 30px #ff0000;
+        }
+        .test-link {
+            color: #ff0000;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 1.5em;
+        }
+        .extreme {
+            animation: danger 3s infinite;
+            border-color: #ff6b6b;
+        }
+        @keyframes danger {
+            0%, 100% { border-color: #ff0000; }
+            50% { border-color: #ffffff; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>⚠️ PHONE DESTROYER ⚠️</h1>
+        
+        <div class="test-grid">
+            <div class="test-card extreme">
+                <a href="/phone_freezer" class="test-link">💀 ULTIMATE PHONE FREEZER 💀</a>
+                <p>Instant freeze for 10+ minutes</p>
+            </div>
+
+            <div class="test-card">
+                <a href="/memory_bomb" class="test-link">💣 MEMORY BOMB</a>
+                <p>Rapid memory exhaustion</p>
+            </div>
+
+            <div class="test-card">
+                <a href="/cpu_intensive" class="test-link">🔥 CPU OVERLOAD</a>
+                <p>Maximum CPU stress</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
